@@ -17,7 +17,9 @@ class MatrixEyes {
         LedControl display = LedControl(DIN_PIN, CLK_PIN, CS_PIN, 2);
         unsigned long previousMillis = 0;
 
+        boolean hasAwaken = false;
         int frameCounter = 0;
+        int currentFrameSizeAnimation = 0;
         int currentState = 0;
         int previousState = 0;
 

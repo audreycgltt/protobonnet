@@ -1,11 +1,11 @@
 #include <FastLED.h>
 
 #define LEDS_PIN 2
-#define NUM_LEDS 34
+#define NUM_LEDS 30
 
-#define COOLING  55
+#define COOLING  70
 #define SPARKING 120
-#define gReverseDirection true
+#define gReverseDirection false
 
 class LEDsBody {
     public:
@@ -15,19 +15,32 @@ class LEDsBody {
         void update();
 
         void setState(int);
+        void setQuizzLEDs(int r, int g, int b);
 
         CRGB leds[NUM_LEDS];
 
     private:
         unsigned long previousMillis = 0;
+        unsigned long lastStrobeEffect = 0;
         int frameCounter = 0;
 
         void idleRainbow();
-        void fillRBG(int r, int g, int b);
-        void twoGradient();
+        void fillRBG();
+        void twoGradient(uint8_t colorIndex, CRGBPalette16 palette);
         void fastBlink();
         void fire2012();
+        void horribleStrobeEffet();
+        void setupLovePalette();
+        void setupZenPalette();
 
-        int currentState = 666;
+        int currentState = 0;
         int previousState = 0;
+
+        int quizzRed = 0;
+        int quizzGreen = 0;
+        int quizzBlue = 255;
+
+        CRGBPalette16 lovePalette;
+        CRGBPalette16 zenPalette;
+        TBlendType    currentBlending;
 };

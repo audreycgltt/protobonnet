@@ -3,17 +3,33 @@
 #include "leds_body.h"
 #include "main.h"
 
+bool isOn = false;
+
 LEDsBody::LEDsBody(){
 }
 
 void LEDsBody::setup(){
     FastLED.addLeds<WS2812B, LEDS_PIN, GRB>(leds, NUM_LEDS);
     FastLED.setBrightness(150);
+
+    setupLovePalette();
+	setupZenPalette();
 }
 
 void LEDsBody::setState(int newState){
+	if (newState == SHITTY_FLUTE_TIME_STATE){
+		FastLED.setBrightness(255);
+	} else {
+		FastLED.setBrightness(150);
+	}
     previousState = currentState;
     currentState = newState;
+}
+
+void LEDsBody::setQuizzLEDs(int r, int g, int b){
+    quizzRed = r;
+    quizzGreen = g;
+    quizzBlue = b;
 }
 
 void LEDsBody::update(){
@@ -22,11 +38,27 @@ void LEDsBody::update(){
             idleRainbow();
             break;
         case IN_LOVE_STATE:
+            static uint8_t startIndex = 0;
+            startIndex = startIndex + 1;
+            twoGradient(startIndex, lovePalette);
+            FastLED.delay(10);
             break;
         case ANGRY_STATE:
+            fire2012();
             break;
         case TEST_STATE:
-            twoGradient();
+            break;
+        case QUIZZ_STATE:
+            fillRBG();
+            break;
+		case SHITTY_FLUTE_TIME_STATE:
+			horribleStrobeEffet();
+			break;
+        case DODO_STATE:
+        	static uint8_t startIndexZ = 0;
+            startIndexZ = startIndexZ + 1;
+            twoGradient(startIndexZ, zenPalette);
+            FastLED.delay(10);
             break;
         default:
             break;
@@ -35,23 +67,21 @@ void LEDsBody::update(){
 }
 
 void LEDsBody::idleRainbow(){
-    uint8_t thisHue = beat8(10,255);                     // A simple rainbow march.
+    uint8_t thisHue = beat8(10,255);                    
   
     fill_rainbow(leds, NUM_LEDS, thisHue, 10);  
 }
 
-void LEDsBody::fillRBG(int r, int g, int b){
-    fill_solid( leds, NUM_LEDS, CRGB(r,g,b));
+void LEDsBody::fillRBG(){
+
+    fill_solid(leds, NUM_LEDS, CRGB(quizzRed, quizzGreen, quizzBlue));
 }
 
-void LEDsBody::twoGradient(){
-  uint8_t startpos = 0;
-  int endpos = NUM_LEDS-1;
-  CRGB rgbval(50,0,500);
-  CHSV hsvval(100,255,200);
-
-  //fill_gradient_RGB(leds, startpos, 0x000011, endpos, 0x110000);   // You can mix and match long values and CRGB values. Remember, endpos goes up to NUM_LEDS-1
-  fill_gradient(leds, startpos, CHSV(50, 255,255) , endpos, CHSV(150,255,255), SHORTEST_HUES);
+void LEDsBody::twoGradient(uint8_t colorIndex, CRGBPalette16 palette){
+    for( int i = 0; i < NUM_LEDS; i++) {
+        leds[i] = ColorFromPalette( palette, colorIndex, 150, LINEARBLEND);
+        colorIndex += 3;
+    }
 }
 
 // Fire2012 by Mark Kriegsman
@@ -83,4 +113,35 @@ void LEDsBody::fire2012(){
     }
 }
 
+void LEDsBody::setupLovePalette(){
+    CRGB pink = CHSV( HUE_PINK, 255, 255);
+    CRGB red  = CHSV( HUE_RED, 255, 255);
 
+    lovePalette = CRGBPalette16(
+                                   pink,  pink,  pink, pink,
+                                   red, red, red, red,
+                                   pink,  pink,  pink, pink, 
+                                   red, red, red, red );
+}
+
+void LEDsBody::setupZenPalette(){
+	CRGB green = CHSV( HUE_GREEN, 255, 255);
+    CRGB turquoise  = CHSV( HUE_BLUE, 255, 255);
+	CRGB blue = CHSV(HUE_BLUE, 255, 255);
+	CRGB black = CRGB::Black;
+
+	zenPalette = CRGBPalette16(
+                                   green,  green,  green, turquoise,
+                                   green, turquoise, blue, blue,
+                                   turquoise,  blue,  blue, black, 
+                                   blue, blue, black, green );
+}
+
+void LEDsBody::horribleStrobeEffet(){
+	long now = millis();
+	if (now - lastStrobeEffect > 30) {
+		fill_solid(leds, NUM_LEDS, isOn ? CRGB::Black : CRGB::White );
+		isOn = !isOn;
+		lastStrobeEffect = now;
+  }
+}

@@ -21,28 +21,35 @@ void MatrixEyes::setState(int newState){
 }
 
 void MatrixEyes::update(){
-    switch(currentState){
-        case IDLE_STATE:
-            runAnimation(IDLE_BLINK, IDLE_BLINK, sizeof(IDLE_BLINK)/8);
-            break;
-        case IN_LOVE_STATE:
-            runAnimation(IN_LOVE, IN_LOVE, sizeof(IN_LOVE)/8);
-            break;
-        case ANGRY_STATE:
-            break;
-        case HAPPY_STATE:
-            break;
-        case SHITTY_FLUTE_TIME_STATE:
-            break;
-        case FALLING_ASLEEP_STATE:
-            break;
-        default:
-            break;
+    if (frameCounter < 999){
+        switch(currentState){
+            case IDLE_STATE:
+                currentFrameSizeAnimation = sizeof(IDLE_BLINK)/8;
+                runAnimation(IDLE_BLINK, IDLE_BLINK, sizeof(IDLE_BLINK)/8);
+                break;
+            case IN_LOVE_STATE:
+                runAnimation(IN_LOVE, IN_LOVE, sizeof(IN_LOVE)/8);
+                break;
+            case ANGRY_STATE:
+                runAnimation(ANGRY_BLINK_LEFT, ANGRY_BLINK_RIGHT, sizeof(ANGRY_BLINK_RIGHT)/8);
+                break;
+            case HAPPY_STATE:
+                runAnimation(HAPPY_FACE, HAPPY_FACE, sizeof(HAPPY_FACE)/8);
+                break;
+            case SHITTY_FLUTE_TIME_STATE:
+                runAnimation(GETTING_MAD_HYPNOTIK, GETTING_MAD_HYPNOTIK, sizeof(GETTING_MAD_HYPNOTIK)/8);
+                break;
+            case QUIZZ_STATE:
+                runAnimation(QUIZZ_TIME, QUIZZ_TIME, sizeof(QUIZZ_TIME)/8);
+                break;
+            case DODO_STATE:
+                runAnimation(DODO_TIME, DODO_TIME, sizeof(DODO_TIME)/8);
+                break;
+            default:
+                runAnimation(IDLE_BLINK, IDLE_BLINK, sizeof(IDLE_BLINK)/8);
+                break;
+        }
     }
-}
-
-void MatrixEyes::loveMode(){
-
 }
 
 void MatrixEyes::runAnimation(uint64_t left_eye_anim[], uint64_t right_eye_anim[], int size){
@@ -55,7 +62,7 @@ void MatrixEyes::runAnimation(uint64_t left_eye_anim[], uint64_t right_eye_anim[
 void MatrixEyes::displayImage(uint64_t left_eye, uint64_t right_eye) {
   for (int i = 0; i < 8; i++) {
     byte leftRow = (left_eye >> i * 8) & 0xFF;
-    byte rightRow = (left_eye >> i * 8) & 0xFF;
+    byte rightRow = (right_eye >> i * 8) & 0xFF;
     for (int j = 0; j < 8; j++) {
       display.setLed(0, i, j, bitRead(leftRow, j));
       display.setLed(1, i, j, bitRead(rightRow, j));
