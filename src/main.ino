@@ -8,9 +8,12 @@
 #include "matrix_eyes.h"
 #include "leds_body.h"
 
+boolean reacting = false;
+
 long lastMatricesUpdate = 0;
 long lastReconnectAttempt = 0;
 long lastTwitchInteraction = 0;
+long reactionTimer = 0;
 
 WiFiClient espClient;
 PubSubClient client(espClient);
@@ -18,24 +21,21 @@ MatrixEyes eyes = MatrixEyes();
 LEDsBody leds = LEDsBody();
 
 void setup() {
-  Serial.begin(9600); 
+    Serial.begin(9600); 
 
-  wifiConnect();
-  
-  client.setServer(MQTT_SERVER, 1883);
-  client.setCallback(callback);
+    wifiConnect();
+    
+    client.setServer(MQTT_SERVER, 1883);
+    client.setCallback(callback);
 
-  lastReconnectAttempt = 0;
-  lastTwitchInteraction = millis();
+    lastReconnectAttempt = 0;
+    lastTwitchInteraction = millis();
 
-  eyes.setup();
-  leds.setup();
-
-  
+    eyes.setup();
+    leds.setup();
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
   	long now = millis();
 		if (now - lastMatricesUpdate > 200)
 		{
@@ -48,6 +48,13 @@ void loop() {
     if (now - lastTwitchInteraction > DODO_TO){
         lastTwitchInteraction = now;
         startDodo();
+    }
+
+    if ((now - reactionTimer > REACTION_PERIOD) && reacting) {
+        reacting = false;
+        reactionTimer = now;
+        eyes.setState(IDLE_STATE);
+        leds.setState(IDLE_STATE);
     }
 
     if (!client.connected()) {
@@ -67,55 +74,57 @@ void loop() {
 }
 
 void wifiConnect(){
-  Serial.print(F("Connecting to ")); Serial.println(SSID);
-  WiFi.begin(SSID, SSID_PWD);
-  
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(500);
-    Serial.print(".");
-  }
+    Serial.print(F("Connecting to ")); Serial.println(SSID);
+    WiFi.begin(SSID, SSID_PWD);
+    
+    while (WiFi.status() != WL_CONNECTED) {
+        delay(500);
+        Serial.print(".");
+    }
 
-  Serial.println();
-  Serial.print(F("WiFi connected at IP: ")); Serial.println(WiFi.localIP());
+    Serial.println();
+    Serial.print(F("WiFi connected at IP: ")); Serial.println(WiFi.localIP());
 }
 
 void callback(char* topic, byte* payload, unsigned int length) {
-  Serial.print("Message arrived on topic: ");
-  Serial.print(topic);
-  Serial.print(". Message: ");
-  String messageTemp;
+    Serial.print("Message arrived on topic: ");
+    Serial.print(topic);
+    Serial.print(". Message: ");
+    String messageTemp;
 
-  lastTwitchInteraction = millis();
+    lastTwitchInteraction = millis();
 
-  for (int i = 0; i < length; i++) {
-    Serial.print((char)payload[i]);
-    messageTemp += (char)payload[i];
-  }
-  Serial.println();
+    for (int i = 0; i < length; i++) {
+        Serial.print((char)payload[i]);
+        messageTemp += (char)payload[i];
+    }
+    Serial.println();
 
-  if (String(topic) == "protopotes/protobonnet/send_love") {
-      eyes.setState(IN_LOVE_STATE);
-      leds.setState(IN_LOVE_STATE);
-  } else if (String(topic) == "protopotes/protobonnet/angry_mode") {
-      eyes.setState(ANGRY_STATE);
-      leds.setState(ANGRY_STATE);
-  } else if (String(topic) == "protopotes/protobonnet/start_quizz") {
-      startQuizz(payload, length);
-  } else if (String(topic) == "protopotes/protobonnet/end_quizz") {
-      endQuizz(payload, length);
-  } else if (String(topic) == "protopotes/protobonnet/shitty_quizz") {
-      eyes.setState(SHITTY_FLUTE_TIME_STATE);
-      leds.setState(SHITTY_FLUTE_TIME_STATE);
-  }
+    if (String(topic) == "protopotes/protobonnet/send_love") {
+        eyes.setState(IN_LOVE_STATE);
+        leds.setState(IN_LOVE_STATE);
+        reacting = true;
+    } else if (String(topic) == "protopotes/protobonnet/angry_mode") {
+        eyes.setState(ANGRY_STATE);
+        leds.setState(ANGRY_STATE);
+    } else if (String(topic) == "protopotes/protobonnet/start_quizz") {
+        startQuizz(payload, length);
+    } else if (String(topic) == "protopotes/protobonnet/end_quizz") {
+        endQuizz(payload, length);
+        reacting = true;
+    } else if (String(topic) == "protopotes/protobonnet/shitty_quizz") {
+        eyes.setState(SHITTY_FLUTE_TIME_STATE);
+        leds.setState(SHITTY_FLUTE_TIME_STATE);
+    }
 }
 
 boolean reconnect() {
-  if (client.connect("ProtoBonnet", MQTT_USER, MQTT_PASSWORD)) {
-    client.publish("protopotes/protobonnet", "Salut");
+    if (client.connect("ProtoBonnet", MQTT_USER, MQTT_PASSWORD)) {
+        client.publish("protopotes/protobonnet", "Salut");
 
-    client.subscribe("protopotes/protobonnet/#");
-  }
-  return client.connected();
+        client.subscribe("protopotes/protobonnet/#");
+    }
+    return client.connected();
 }
 
 
@@ -135,7 +144,6 @@ void endQuizz(byte* payload, unsigned int length){
     if (doc["victory"] == true){
         eyes.setState(HAPPY_STATE);
         leds.setState(IDLE_STATE);
-        Serial.println("Victory");
     } else {
         eyes.setState(ANGRY_STATE);
         leds.setState(ANGRY_STATE);

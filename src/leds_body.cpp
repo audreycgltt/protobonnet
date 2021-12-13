@@ -127,7 +127,7 @@ void LEDsBody::setupLovePalette(){
 void LEDsBody::setupZenPalette(){
 	CRGB green = CHSV( HUE_GREEN, 255, 255);
     CRGB turquoise  = CHSV( HUE_BLUE, 255, 255);
-	CRGB blue = CHSV(HUE_BLUE, 255, 255);
+	CRGB blue = CHSV(HUE_PURPLE, 255, 255);
 	CRGB black = CRGB::Black;
 
 	zenPalette = CRGBPalette16(
