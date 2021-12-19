@@ -45,6 +45,9 @@ void MatrixEyes::update(){
             case DODO_STATE:
                 runAnimation(DODO_TIME, DODO_TIME, sizeof(DODO_TIME)/8);
                 break;
+            case SUB_STATE:
+                runAnimation(MOULA_SUB, MOULA_SUB, sizeof(MOULA_SUB)/8);
+                break;
             default:
                 runAnimation(IDLE_BLINK, IDLE_BLINK, sizeof(IDLE_BLINK)/8);
                 break;

@@ -1,7 +1,7 @@
 #include <FastLED.h>
 
 #define LEDS_PIN 2
-#define NUM_LEDS 30
+#define NUM_LEDS 12 //30
 
 #define COOLING  70
 #define SPARKING 120
@@ -16,13 +16,16 @@ class LEDsBody {
 
         void setState(int);
         void setQuizzLEDs(int r, int g, int b);
+        void setNormalBrightness(int brightness);
 
         CRGB leds[NUM_LEDS];
 
     private:
         unsigned long previousMillis = 0;
         unsigned long lastStrobeEffect = 0;
+
         int frameCounter = 0;
+        int brightness = 150;
 
         void idleRainbow();
         void fillRBG();

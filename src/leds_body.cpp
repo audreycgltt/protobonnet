@@ -10,7 +10,7 @@ LEDsBody::LEDsBody(){
 
 void LEDsBody::setup(){
     FastLED.addLeds<WS2812B, LEDS_PIN, GRB>(leds, NUM_LEDS);
-    FastLED.setBrightness(150);
+    FastLED.setBrightness(brightness);
 
     setupLovePalette();
 	setupZenPalette();
@@ -20,7 +20,7 @@ void LEDsBody::setState(int newState){
 	if (newState == SHITTY_FLUTE_TIME_STATE){
 		FastLED.setBrightness(255);
 	} else {
-		FastLED.setBrightness(150);
+		FastLED.setBrightness(brightness);
 	}
     previousState = currentState;
     currentState = newState;
@@ -30,6 +30,11 @@ void LEDsBody::setQuizzLEDs(int r, int g, int b){
     quizzRed = r;
     quizzGreen = g;
     quizzBlue = b;
+}
+
+void LEDsBody::setNormalBrightness(int newBrightness){
+    brightness = newBrightness;
+    FastLED.setBrightness(brightness);
 }
 
 void LEDsBody::update(){
@@ -46,8 +51,6 @@ void LEDsBody::update(){
         case ANGRY_STATE:
             fire2012();
             break;
-        case TEST_STATE:
-            break;
         case QUIZZ_STATE:
             fillRBG();
             break;
@@ -61,6 +64,7 @@ void LEDsBody::update(){
             FastLED.delay(10);
             break;
         default:
+            idleRainbow();
             break;
     }
     FastLED.show();

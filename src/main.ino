@@ -110,11 +110,17 @@ void callback(char* topic, byte* payload, unsigned int length) {
     } else if (String(topic) == "protopotes/protobonnet/start_quizz") {
         startQuizz(payload, length);
     } else if (String(topic) == "protopotes/protobonnet/end_quizz") {
-        endQuizz(payload, length);
-        reacting = true;
+        eyes.setState(IDLE_STATE);
+        leds.setState(IDLE_STATE);
     } else if (String(topic) == "protopotes/protobonnet/shitty_quizz") {
         eyes.setState(SHITTY_FLUTE_TIME_STATE);
         leds.setState(SHITTY_FLUTE_TIME_STATE);
+    } else if (String(topic) == "protopotes/protobonnet/set_brightness_leds") {
+        leds.setNormalBrightness(int(payload));
+    } else if (String(topic) == "protopotes/protobonnet/set_brightness_matrices") {
+        leds.setNormalBrightness(int(payload));
+    } else if (String(topic) == "protopotes/eventsub") {
+        newTwitchEvent(payload, length);
     }
 }
 
@@ -147,6 +153,18 @@ void endQuizz(byte* payload, unsigned int length){
     } else {
         eyes.setState(ANGRY_STATE);
         leds.setState(ANGRY_STATE);
+    }
+}
+
+void newTwitchEvent(byte* payload, unsigned int length){
+    StaticJsonDocument<256> doc;
+    deserializeJson(doc, payload, length);
+
+    JsonObject eventInfo = doc["subscription"];
+
+    if (eventInfo["type"] == "channel.subscribe"){
+        eyes.setState(SUB_STATE);
+        reacting = true;
     }
 }
 
