@@ -6,24 +6,24 @@
 #define DIN_PIN 23
 
 class MatrixEyes {
-    public:
+   public:
+    MatrixEyes();
+    void setup();
+    void update();
+    void setState(int);
+    void setEyesBrightness(int);
 
-        MatrixEyes();
-        void setup();
-        void update();
-        void setState(int);
+   private:
+    LedControl display = LedControl(DIN_PIN, CLK_PIN, CS_PIN, 2);
+    unsigned long previousMillis = 0;
 
-    private:
-        LedControl display = LedControl(DIN_PIN, CLK_PIN, CS_PIN, 2);
-        unsigned long previousMillis = 0;
+    boolean hasAwaken = false;
+    int frameCounter = 0;
+    int currentFrameSizeAnimation = 0;
+    int currentState = 0;
+    int previousState = 0;
 
-        boolean hasAwaken = false;
-        int frameCounter = 0;
-        int currentFrameSizeAnimation = 0;
-        int currentState = 0;
-        int previousState = 0;
-
-        void loveMode();
-        void runAnimation(uint64_t left_eye_anim[], uint64_t right_eye_anim[], int size);
-        void displayImage(uint64_t left_eye, uint64_t right_eye);
+    void loveMode();
+    void runAnimation(uint64_t left_eye_anim[], uint64_t right_eye_anim[], int size);
+    void displayImage(uint64_t left_eye, uint64_t right_eye);
 };
