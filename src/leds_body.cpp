@@ -35,6 +35,8 @@ void LEDsBody::setQuizzLEDs(int r, int g, int b){
 void LEDsBody::setNormalBrightness(int newBrightness){
     brightness = newBrightness;
     FastLED.setBrightness(brightness);
+    Serial.println("New brightness");
+    Serial.println(String(brightness));
 }
 
 void LEDsBody::update(){
@@ -57,6 +59,9 @@ void LEDsBody::update(){
 		case SHITTY_FLUTE_TIME_STATE:
 			horribleStrobeEffet();
 			break;
+        case SUB_STATE:
+            testAnimation();
+            break;
         case DODO_STATE:
         	static uint8_t startIndexZ = 0;
             startIndexZ = startIndexZ + 1;
@@ -83,9 +88,16 @@ void LEDsBody::fillRBG(){
 
 void LEDsBody::twoGradient(uint8_t colorIndex, CRGBPalette16 palette){
     for( int i = 0; i < NUM_LEDS; i++) {
-        leds[i] = ColorFromPalette( palette, colorIndex, 150, LINEARBLEND);
+        leds[i] = ColorFromPalette(palette, colorIndex, 150, LINEARBLEND);
         colorIndex += 3;
     }
+}
+
+void LEDsBody::testAnimation(){
+    fadeToBlackBy(leds, NUM_LEDS, 10);
+    delay(5);
+    int pixel = random(NUM_LEDS);
+    leds[pixel] = CRGB(255, random8(30,200), 0);
 }
 
 // Fire2012 by Mark Kriegsman

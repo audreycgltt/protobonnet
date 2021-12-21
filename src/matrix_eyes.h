@@ -12,6 +12,7 @@ class MatrixEyes {
         void setup();
         void update();
         void setState(int);
+        void setEyesBrightness(int);
 
     private:
         LedControl display = LedControl(DIN_PIN, CLK_PIN, CS_PIN, 2);

@@ -36,6 +36,8 @@ class LEDsBody {
         void setupLovePalette();
         void setupZenPalette();
 
+        void testAnimation();
+
         int currentState = 0;
         int previousState = 0;
 

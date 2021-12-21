@@ -20,6 +20,11 @@ void MatrixEyes::setState(int newState){
     currentState = newState;
 }
 
+void MatrixEyes::setEyesBrightness(int intensity){
+    display.setIntensity(0, intensity);
+    display.setIntensity(1, intensity);
+}
+
 void MatrixEyes::update(){
     if (frameCounter < 999){
         switch(currentState){

@@ -26,6 +26,7 @@ void setup() {
     wifiConnect();
     
     client.setServer(MQTT_SERVER, 1883);
+    client.setBufferSize(2048);
     client.setCallback(callback);
 
     lastReconnectAttempt = 0;
@@ -107,6 +108,7 @@ void callback(char* topic, byte* payload, unsigned int length) {
     } else if (String(topic) == "protopotes/protobonnet/angry_mode") {
         eyes.setState(ANGRY_STATE);
         leds.setState(ANGRY_STATE);
+        reacting = true;
     } else if (String(topic) == "protopotes/protobonnet/start_quizz") {
         startQuizz(payload, length);
     } else if (String(topic) == "protopotes/protobonnet/end_quizz") {
@@ -118,8 +120,8 @@ void callback(char* topic, byte* payload, unsigned int length) {
     } else if (String(topic) == "protopotes/protobonnet/set_brightness_leds") {
         leds.setNormalBrightness(int(payload));
     } else if (String(topic) == "protopotes/protobonnet/set_brightness_matrices") {
-        leds.setNormalBrightness(int(payload));
-    } else if (String(topic) == "protopotes/eventsub") {
+        eyes.setEyesBrightness(int(payload));
+    } else if (String(topic) == "protopotes/testevent") {
         newTwitchEvent(payload, length);
     }
 }
@@ -129,6 +131,7 @@ boolean reconnect() {
         client.publish("protopotes/protobonnet", "Salut");
 
         client.subscribe("protopotes/protobonnet/#");
+        client.subscribe("protopotes/testevent");
     }
     return client.connected();
 }
@@ -164,6 +167,7 @@ void newTwitchEvent(byte* payload, unsigned int length){
 
     if (eventInfo["type"] == "channel.subscribe"){
         eyes.setState(SUB_STATE);
+        leds.setState(SUB_STATE);
         reacting = true;
     }
 }
