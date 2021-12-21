@@ -1,12 +1,12 @@
 #include <Arduino.h>
 #include <ArduinoJson.h>
-#include <WiFi.h>
 #include <PubSubClient.h>
+#include <WiFi.h>
 
-#include "main.h"
-#include "secret.h"
-#include "matrix_eyes.h"
 #include "leds_body.h"
+#include "main.h"
+#include "matrix_eyes.h"
+#include "secret.h"
 
 boolean reacting = false;
 
@@ -23,10 +23,10 @@ LEDsBody leds = LEDsBody();
 DynamicJsonDocument doc(2048);
 
 void setup() {
-    Serial.begin(9600); 
+    Serial.begin(9600);
 
     wifiConnect();
-    
+
     client.setServer(MQTT_SERVER, 1883);
     client.setBufferSize(2048);
     client.setCallback(callback);
@@ -39,16 +39,15 @@ void setup() {
 }
 
 void loop() {
-  	long now = millis();
-		if (now - lastMatricesUpdate > 200)
-		{
-			lastMatricesUpdate = now;
-			eyes.update();
-		}
+    long now = millis();
+    if (now - lastMatricesUpdate > 200) {
+        lastMatricesUpdate = now;
+        eyes.update();
+    }
 
     leds.update();
 
-    if (now - lastTwitchInteraction > DODO_TO){
+    if (now - lastTwitchInteraction > DODO_TO) {
         lastTwitchInteraction = now;
         startDodo();
     }
@@ -62,30 +61,31 @@ void loop() {
     if (!client.connected()) {
         now = millis();
         if (now - lastReconnectAttempt > 5000) {
-          Serial.printf("Not connected");
-          lastReconnectAttempt = now;
+            Serial.printf("Not connected");
+            lastReconnectAttempt = now;
 
-          if (reconnect()) {
-            lastReconnectAttempt = 0;
-          }
+            if (reconnect()) {
+                lastReconnectAttempt = 0;
+            }
         }
     } else {
-
         client.loop();
     }
 }
 
-void wifiConnect(){
-    Serial.print(F("Connecting to ")); Serial.println(SSID);
+void wifiConnect() {
+    Serial.print(F("Connecting to "));
+    Serial.println(SSID);
     WiFi.begin(SSID, SSID_PWD);
-    
+
     while (WiFi.status() != WL_CONNECTED) {
         delay(500);
         Serial.print(".");
     }
 
     Serial.println();
-    Serial.print(F("WiFi connected at IP: ")); Serial.println(WiFi.localIP());
+    Serial.print(F("WiFi connected at IP: "));
+    Serial.println(WiFi.localIP());
 }
 
 void callback(char* topic, byte* payload, unsigned int length) {
@@ -94,10 +94,9 @@ void callback(char* topic, byte* payload, unsigned int length) {
     //Serial.print(". Message: ");
     //String messageTemp;
 
-    if (String(topic) != "protopotes/chat/ioodyme"){
+    if (String(topic) != "protopotes/chat/ioodyme") {
         lastTwitchInteraction = millis();
     }
-    
 
     //for (int i = 0; i < length; i++) {
     //    Serial.print((char)payload[i]);
@@ -145,8 +144,7 @@ boolean reconnect() {
     return client.connected();
 }
 
-
-void startQuizz(byte* payload, unsigned int length){
+void startQuizz(byte* payload, unsigned int length) {
     deserializeJson(doc, payload, length);
 
     eyes.setState(QUIZZ_STATE);
@@ -154,10 +152,10 @@ void startQuizz(byte* payload, unsigned int length){
     leds.setState(QUIZZ_STATE);
 }
 
-void endQuizz(byte* payload, unsigned int length){
+void endQuizz(byte* payload, unsigned int length) {
     deserializeJson(doc, payload, length);
 
-    if (doc["victory"] == true){
+    if (doc["victory"] == true) {
         eyes.setState(HAPPY_STATE);
         leds.setState(IDLE_STATE);
     } else {
@@ -166,35 +164,35 @@ void endQuizz(byte* payload, unsigned int length){
     }
 }
 
-void newTwitchEvent(byte* payload, unsigned int length){
+void newTwitchEvent(byte* payload, unsigned int length) {
     deserializeJson(doc, payload, length);
     JsonObject eventInfo = doc["subscription"];
 
-    if (eventInfo["type"] == "channel.subscribe"){
+    if (eventInfo["type"] == "channel.subscribe") {
         eyes.setState(SUB_STATE);
         leds.setState(SUB_STATE);
         startReaction();
     }
 }
 
-void newTwitchMsg(byte* payload, unsigned int length){
+void newTwitchMsg(byte* payload, unsigned int length) {
     deserializeJson(doc, payload, length);
 
-    String mp = doc["message"] ;
+    String mp = doc["message"];
 
-    if (mp == "shakawKathEvil"){
+    if (mp == "shakawKathEvil") {
         eyes.setState(ANGRY_STATE);
         leds.setState(ANGRY_STATE);
         startReaction();
     }
 }
 
-void startDodo(){
+void startDodo() {
     eyes.setState(DODO_STATE);
     leds.setState(DODO_STATE);
 }
 
-void startReaction(){
+void startReaction() {
     reacting = true;
     reactionTimer = millis();
 }
