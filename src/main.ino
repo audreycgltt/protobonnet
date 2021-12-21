@@ -53,7 +53,6 @@ void loop() {
 
     if ((now - reactionTimer > REACTION_PERIOD) && reacting) {
         reacting = false;
-        reactionTimer = now;
         eyes.setState(IDLE_STATE);
         leds.setState(IDLE_STATE);
     }
@@ -93,7 +92,10 @@ void callback(char* topic, byte* payload, unsigned int length) {
     Serial.print(". Message: ");
     String messageTemp;
 
-    lastTwitchInteraction = millis();
+    if (String(topic) != "protopotes/chat/ioodyme"){
+        lastTwitchInteraction = millis();
+    }
+    
 
     for (int i = 0; i < length; i++) {
         Serial.print((char)payload[i]);
@@ -104,11 +106,11 @@ void callback(char* topic, byte* payload, unsigned int length) {
     if (String(topic) == "protopotes/protobonnet/send_love") {
         eyes.setState(IN_LOVE_STATE);
         leds.setState(IN_LOVE_STATE);
-        reacting = true;
+        startReaction();
     } else if (String(topic) == "protopotes/protobonnet/angry_mode") {
         eyes.setState(ANGRY_STATE);
         leds.setState(ANGRY_STATE);
-        reacting = true;
+        startReaction();
     } else if (String(topic) == "protopotes/protobonnet/start_quizz") {
         startQuizz(payload, length);
     } else if (String(topic) == "protopotes/protobonnet/end_quizz") {
@@ -118,11 +120,15 @@ void callback(char* topic, byte* payload, unsigned int length) {
         eyes.setState(SHITTY_FLUTE_TIME_STATE);
         leds.setState(SHITTY_FLUTE_TIME_STATE);
     } else if (String(topic) == "protopotes/protobonnet/set_brightness_leds") {
+        Serial.println(String(int(payload)));
         leds.setNormalBrightness(int(payload));
     } else if (String(topic) == "protopotes/protobonnet/set_brightness_matrices") {
+        Serial.println(String(int(payload)));
         eyes.setEyesBrightness(int(payload));
     } else if (String(topic) == "protopotes/testevent") {
         newTwitchEvent(payload, length);
+    } else if (String(topic) == "protopotes/chat/ioodyme") {
+        newTwitchMsg(payload, length);
     }
 }
 
@@ -132,6 +138,7 @@ boolean reconnect() {
 
         client.subscribe("protopotes/protobonnet/#");
         client.subscribe("protopotes/testevent");
+        client.subscribe("protopotes/chat/ioodyme");
     }
     return client.connected();
 }
@@ -168,11 +175,31 @@ void newTwitchEvent(byte* payload, unsigned int length){
     if (eventInfo["type"] == "channel.subscribe"){
         eyes.setState(SUB_STATE);
         leds.setState(SUB_STATE);
-        reacting = true;
+        startReaction();
+    }
+}
+
+void newTwitchMsg(byte* payload, unsigned int length){
+    DynamicJsonDocument doc(2048);
+    deserializeJson(doc, payload, length);
+
+    String mp = doc["message"] ;
+
+    Serial.println(mp);
+
+    if (mp == "shakawKathEvil"){
+        eyes.setState(ANGRY_STATE);
+        leds.setState(ANGRY_STATE);
+        startReaction();
     }
 }
 
 void startDodo(){
     eyes.setState(DODO_STATE);
     leds.setState(DODO_STATE);
+}
+
+void startReaction(){
+    reacting = true;
+    reactionTimer = millis();
 }
