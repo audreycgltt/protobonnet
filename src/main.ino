@@ -20,6 +20,8 @@ PubSubClient client(espClient);
 MatrixEyes eyes = MatrixEyes();
 LEDsBody leds = LEDsBody();
 
+DynamicJsonDocument doc(2048);
+
 void setup() {
     Serial.begin(9600); 
 
@@ -89,18 +91,18 @@ void wifiConnect(){
 void callback(char* topic, byte* payload, unsigned int length) {
     Serial.print("Message arrived on topic: ");
     Serial.print(topic);
-    Serial.print(". Message: ");
-    String messageTemp;
+    //Serial.print(". Message: ");
+    //String messageTemp;
 
     if (String(topic) != "protopotes/chat/ioodyme"){
         lastTwitchInteraction = millis();
     }
     
 
-    for (int i = 0; i < length; i++) {
-        Serial.print((char)payload[i]);
-        messageTemp += (char)payload[i];
-    }
+    //for (int i = 0; i < length; i++) {
+    //    Serial.print((char)payload[i]);
+    //    messageTemp += (char)payload[i];
+    //}
     Serial.println();
 
     if (String(topic) == "protopotes/protobonnet/send_love") {
@@ -120,11 +122,11 @@ void callback(char* topic, byte* payload, unsigned int length) {
         eyes.setState(SHITTY_FLUTE_TIME_STATE);
         leds.setState(SHITTY_FLUTE_TIME_STATE);
     } else if (String(topic) == "protopotes/protobonnet/set_brightness_leds") {
-        Serial.println(String(int(payload)));
-        leds.setNormalBrightness(int(payload));
+        deserializeJson(doc, payload, length);
+        leds.setNormalBrightness(doc["brightness"]);
     } else if (String(topic) == "protopotes/protobonnet/set_brightness_matrices") {
-        Serial.println(String(int(payload)));
-        eyes.setEyesBrightness(int(payload));
+        deserializeJson(doc, payload, length);
+        eyes.setEyesBrightness(doc["intensity"]);
     } else if (String(topic) == "protopotes/testevent") {
         newTwitchEvent(payload, length);
     } else if (String(topic) == "protopotes/chat/ioodyme") {
@@ -145,7 +147,6 @@ boolean reconnect() {
 
 
 void startQuizz(byte* payload, unsigned int length){
-    StaticJsonDocument<256> doc;
     deserializeJson(doc, payload, length);
 
     eyes.setState(QUIZZ_STATE);
@@ -154,7 +155,6 @@ void startQuizz(byte* payload, unsigned int length){
 }
 
 void endQuizz(byte* payload, unsigned int length){
-    StaticJsonDocument<256> doc;
     deserializeJson(doc, payload, length);
 
     if (doc["victory"] == true){
@@ -167,9 +167,7 @@ void endQuizz(byte* payload, unsigned int length){
 }
 
 void newTwitchEvent(byte* payload, unsigned int length){
-    StaticJsonDocument<256> doc;
     deserializeJson(doc, payload, length);
-
     JsonObject eventInfo = doc["subscription"];
 
     if (eventInfo["type"] == "channel.subscribe"){
@@ -180,12 +178,9 @@ void newTwitchEvent(byte* payload, unsigned int length){
 }
 
 void newTwitchMsg(byte* payload, unsigned int length){
-    DynamicJsonDocument doc(2048);
     deserializeJson(doc, payload, length);
 
     String mp = doc["message"] ;
-
-    Serial.println(mp);
 
     if (mp == "shakawKathEvil"){
         eyes.setState(ANGRY_STATE);

@@ -25,7 +25,7 @@ class LEDsBody {
         unsigned long lastStrobeEffect = 0;
 
         int frameCounter = 0;
-        int brightness = 150;
+        int brightness = 90;
 
         void idleRainbow();
         void fillRBG();
@@ -50,7 +50,5 @@ class LEDsBody {
         int quizzGreen = 0;
         int quizzBlue = 255;
 
-        CRGBPalette16 lovePalette;
-        CRGBPalette16 zenPalette;
         TBlendType    currentBlending;
 };

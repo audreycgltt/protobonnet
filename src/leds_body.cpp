@@ -13,9 +13,6 @@ LEDsBody::LEDsBody(){
 void LEDsBody::setup(){
     FastLED.addLeds<WS2812B, LEDS_PIN, GRB>(leds, NUM_LEDS);
     FastLED.setBrightness(brightness);
-
-    setupLovePalette();
-	setupZenPalette();
 }
 
 void LEDsBody::setState(int newState){
@@ -37,8 +34,6 @@ void LEDsBody::setQuizzLEDs(int r, int g, int b){
 void LEDsBody::setNormalBrightness(int newBrightness){
     brightness = newBrightness;
     FastLED.setBrightness(brightness);
-    Serial.println("New brightness");
-    Serial.println(String(brightness));
 }
 
 void LEDsBody::update(){
@@ -130,30 +125,6 @@ void LEDsBody::fire2012(){
       }
       leds[pixelnumber] = color;
     }
-}
-
-void LEDsBody::setupLovePalette(){
-    CRGB pink = CHSV( HUE_PINK, 255, 255);
-    CRGB red  = CHSV( HUE_RED, 255, 255);
-
-    lovePalette = CRGBPalette16(
-                                   pink,  pink,  pink, pink,
-                                   red, red, red, red,
-                                   pink,  pink,  pink, pink, 
-                                   red, red, red, red );
-}
-
-void LEDsBody::setupZenPalette(){
-	CRGB green = CHSV( HUE_GREEN, 255, 255);
-    CRGB turquoise  = CHSV( HUE_BLUE, 255, 255);
-	CRGB blue = CHSV(HUE_PURPLE, 255, 255);
-	CRGB black = CRGB::Black;
-
-	zenPalette = CRGBPalette16(
-                                   green,  green,  green, turquoise,
-                                   green, turquoise, blue, blue,
-                                   turquoise,  blue,  blue, black, 
-                                   blue, blue, black, green );
 }
 
 void LEDsBody::horribleStrobeEffet(){
