@@ -91,18 +91,16 @@ void wifiConnect() {
 void callback(char* topic, byte* payload, unsigned int length) {
     Serial.print("Message arrived on topic: ");
     Serial.print(topic);
-    //Serial.print(". Message: ");
-    //String messageTemp;
-
-    if (String(topic) != "protopotes/chat/ioodyme") {
-        lastTwitchInteraction = millis();
+    Serial.print(". Message: ");
+    String messageTemp;
+    
+    for (int i = 0; i < length; i++) {
+        Serial.print((char)payload[i]);
+        messageTemp += (char)payload[i];
     }
-
-    //for (int i = 0; i < length; i++) {
-    //    Serial.print((char)payload[i]);
-    //    messageTemp += (char)payload[i];
-    //}
     Serial.println();
+
+    lastTwitchInteraction = millis();
 
     if (String(topic) == "protopotes/protobonnet/send_love") {
         eyes.setState(IN_LOVE_STATE);
@@ -117,7 +115,7 @@ void callback(char* topic, byte* payload, unsigned int length) {
     } else if (String(topic) == "protopotes/protobonnet/end_quizz") {
         eyes.setState(IDLE_STATE);
         leds.setState(IDLE_STATE);
-    } else if (String(topic) == "protopotes/protobonnet/shitty_quizz") {
+    } else if (String(topic) == "protopotes/protobonnet/start_flute") {
         eyes.setState(SHITTY_FLUTE_TIME_STATE);
         leds.setState(SHITTY_FLUTE_TIME_STATE);
     } else if (String(topic) == "protopotes/protobonnet/set_brightness_leds") {
@@ -128,8 +126,6 @@ void callback(char* topic, byte* payload, unsigned int length) {
         eyes.setEyesBrightness(doc["intensity"]);
     } else if (String(topic) == "protopotes/testevent") {
         newTwitchEvent(payload, length);
-    } else if (String(topic) == "protopotes/chat/ioodyme") {
-        newTwitchMsg(payload, length);
     }
 }
 
@@ -139,7 +135,7 @@ boolean reconnect() {
 
         client.subscribe("protopotes/protobonnet/#");
         client.subscribe("protopotes/testevent");
-        client.subscribe("protopotes/chat/ioodyme");
+        //client.subscribe("protopotes/chat/ioodyme");
     }
     return client.connected();
 }
@@ -171,18 +167,6 @@ void newTwitchEvent(byte* payload, unsigned int length) {
     if (eventInfo["type"] == "channel.subscribe") {
         eyes.setState(SUB_STATE);
         leds.setState(SUB_STATE);
-        startReaction();
-    }
-}
-
-void newTwitchMsg(byte* payload, unsigned int length) {
-    deserializeJson(doc, payload, length);
-
-    String mp = doc["message"];
-
-    if (mp == "shakawKathEvil") {
-        eyes.setState(ANGRY_STATE);
-        leds.setState(ANGRY_STATE);
         startReaction();
     }
 }
