@@ -1,7 +1,7 @@
 #include <FastLED.h>
 
 #define LEDS_PIN 2
-#define NUM_LEDS 12  //30
+#define NUM_LEDS 30
 
 #define COOLING 70
 #define SPARKING 120

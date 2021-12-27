@@ -118,13 +118,16 @@ void callback(char* topic, byte* payload, unsigned int length) {
     } else if (String(topic) == "protopotes/protobonnet/start_flute") {
         eyes.setState(SHITTY_FLUTE_TIME_STATE);
         leds.setState(SHITTY_FLUTE_TIME_STATE);
+    } else if (String(topic) == "protopotes/protobonnet/end_flute") {
+        eyes.setState(IDLE_STATE);
+        leds.setState(IDLE_STATE);
     } else if (String(topic) == "protopotes/protobonnet/set_brightness_leds") {
         deserializeJson(doc, payload, length);
         leds.setNormalBrightness(doc["brightness"]);
     } else if (String(topic) == "protopotes/protobonnet/set_brightness_matrices") {
         deserializeJson(doc, payload, length);
         eyes.setEyesBrightness(doc["intensity"]);
-    } else if (String(topic) == "protopotes/testevent") {
+    } else if (String(topic) == "protopotes/event") {
         newTwitchEvent(payload, length);
     }
 }
