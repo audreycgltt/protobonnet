@@ -24,6 +24,28 @@ I was personnally charged to sew the hat, make the electronics and program it (w
 
 Viewers can trigger actions and commands through a dedicated web interface in exchange of protopoints (currency created for the event that can be obtained in exchange of Twitch channel points).
 
+## Installation 
+
+#### Hardware 
+
+* ESP32
+* RGB LEDs strip WS2812b 60/m
+* 2 red LEDs MAX7219 matrices (I used [Led-Matric-editor](https://xantorohara.github.io/led-matrix-editor) to create the animations)
+
+#### Firmware
+
+This project uses PlatformIO. You will need VSCode with the PlatformIO extension installed. The following libraries are required:
+* [FastLED](https://github.com/FastLED/FastLED)
+* [LedControl](https://github.com/wayoda/LedControl)
+* [PubSubClient](https://github.com/knolleary/pubsubclient)
+* [ArduinoJson](https://github.com/bblanchon/ArduinoJson)
+
+Don't forget to update your SSID and MQTT info in `secret.h`!
+
+#### Santa Hat
+
+To create the hat, I sewed it myself following a youtube tutorial by [Tock Custom](https://www.youtube.com/watch?v=YAwPCVWVTEs), I just changed the fabric in order to diffuse the light. 
+
 ## Wiring
 
 ![wiring](images/schematic.png)

@@ -78,6 +78,7 @@ void LEDsBody::idleRainbow() {
 
 void LEDsBody::fillRBG() {
     fill_solid(leds, NUM_LEDS, CRGB(quizzRed, quizzGreen, quizzBlue));
+    FastLED.setBrightness(brightness);
 }
 
 void LEDsBody::twoGradient(uint8_t colorIndex, CRGBPalette16 palette) {
